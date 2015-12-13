@@ -1,5 +1,8 @@
 package spcgroup.soirapheesp.myrestaurant;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -8,6 +11,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.util.ArrayList;
+import java.util.jar.Attributes;
 
 public class OrderLISTVIEW extends AppCompatActivity {
 
@@ -40,14 +54,74 @@ public class OrderLISTVIEW extends AppCompatActivity {
     private void createListView() {
 
         ManageTABLE objManageTABLE = new ManageTABLE(this);
-        String[] strFood = objManageTABLE.readAllData(1);
+        final String[] strFood = objManageTABLE.readAllData(1);
         String[] strSource = objManageTABLE.readAllData(2);
         String[] strPrice = objManageTABLE.readAllData(3);
 
         FoodAdapter objFoodAdapter = new FoodAdapter(OrderLISTVIEW.this, strFood, strPrice, strSource);
         foodListView.setAdapter(objFoodAdapter);
 
+        foodListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                foodString = strFood[i];
+                chooseItem();
+            }
+        });
     }//CreateListView
+
+    private void chooseItem() {
+        CharSequence[] objCharSequences = {"1 set", "2 set", "3 set"};
+        AlertDialog.Builder objBuilder = new AlertDialog.Builder(this);
+        objBuilder.setTitle(foodString);
+
+        objBuilder.setSingleChoiceItems(objCharSequences, -1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                itemString = Integer.toString(i + 1);
+                dialogInterface.dismiss();
+
+                //Update MySQL
+                updateMySQL();
+            }//event
+        });
+        objBuilder.show();
+
+
+
+    }
+
+    private void updateMySQL() {
+
+        StrictMode.ThreadPolicy myPolicy = new StrictMode.ThreadPolicy
+                .Builder().permitAll().build();
+        StrictMode.setThreadPolicy(myPolicy);
+
+        try {
+
+            ArrayList<NameValuePair> objNameValuePairs = new ArrayList<NameValuePair>();
+            objNameValuePairs.add(new BasicNameValuePair("isAdd", "true"));
+            objNameValuePairs.add(new BasicNameValuePair("Officer", officerString));
+            objNameValuePairs.add(new BasicNameValuePair("Desk", deskString));
+            objNameValuePairs.add(new BasicNameValuePair("Food", foodString));
+            objNameValuePairs.add(new BasicNameValuePair("Item", itemString));
+
+
+            HttpClient objHttpClient = new DefaultHttpClient();
+            HttpPost objHttpPost = new HttpPost("http://swiftcodingthai.com/12dec/php_add_data.php");
+
+            objHttpPost.setEntity(new UrlEncodedFormEntity(objNameValuePairs, "UTF-8"));
+            Toast.makeText(OrderLISTVIEW.this, "Update Successful.", Toast.LENGTH_SHORT).show();
+            objHttpClient.execute(objHttpPost);
+
+
+        } catch (Exception e) {
+            MyAlertDialog objMyAlertDialog = new MyAlertDialog();
+            objMyAlertDialog.errorDialog(OrderLISTVIEW.this,"Error","Cannot update New Value to MySQL.");
+
+        }
+
+    }//updateMysql
 
     private void createSpinner() {
         //setup desk
