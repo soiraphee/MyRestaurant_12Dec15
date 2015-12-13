@@ -1,5 +1,6 @@
 package spcgroup.soirapheesp.myrestaurant;
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
@@ -83,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
             //Check Password
             if (passwordString.equals(strMyResult[2])) {
                 //intent to listview
+                Intent objIntent = new Intent(MainActivity.this, OrderLISTVIEW.class);
+                objIntent.putExtra("officer", strMyResult[3]);
+                startActivity(objIntent);
 
             } else {
                 //Alert
@@ -111,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
             InputStream objInputStream = null;
             String strJSON = null;
-            String strURLuser = "http://swiftcodingthai.com/12dec/php_get_data_master.php";
+            String strURLuser = "http://swiftcodingthai.com/12dec/php_get_data_soiraphee.php";
             String strURLfood = "http://swiftcodingthai.com/12dec/php_get_data_food.php";
             HttpPost objHttpPost = null;
 
