@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         //Tester Add Value
         //testerAddValue();
 
-        //delete all sqlite
+        //delete all split
         deleteAllSQLite();
 
         //Synchronize JSON to SQLite
@@ -70,10 +70,34 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
             //No Space
+            CheckUser();
 
         }
 
     }// ClickLogin
+
+    private void CheckUser() {
+        try {
+
+            String[] strMyResult = objManageTABLE.searchUser(userString);
+            //Check Password
+            if (passwordString.equals(strMyResult[2])) {
+                //intent to listview
+
+            } else {
+                //Alert
+                MyAlertDialog objMyAlertDialog = new MyAlertDialog();
+                objMyAlertDialog.errorDialog(MainActivity.this, "Password false", "Please try again Password your false. ");
+
+            }
+
+        } catch (Exception e) {
+            MyAlertDialog objMyAlertDialog = new MyAlertDialog();
+            objMyAlertDialog.errorDialog(MainActivity.this, "User Fault", "No " + userString + " in my DB.");
+
+        }
+        }
+
     private void synJSONtoSQLite() {
 
         //Setup my Policy
@@ -137,10 +161,10 @@ public class MainActivity extends AppCompatActivity {
                     switch (intTable) {
                         case 1:
                             //For UserTable
-                            String strUserr = object.getString("User");
+                            String strUser = object.getString("User");
                             String strPassword = object.getString("Password");
                             String strName = object.getString("Name");
-                            objManageTABLE.addValueToUser(strUserr, strPassword, strName);
+                            objManageTABLE.addValueToUser(strUser, strPassword, strName);
                             break;
                         case 2:
                             //For foodTable
